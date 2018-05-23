@@ -26,6 +26,7 @@
 
 <script>
 import Service from '@/util/service'
+import Store from '@/util/store'
 import YzSlider from '@/components/yz-slider'
 export default {
   name: 'loginForm',
@@ -57,20 +58,19 @@ export default {
         this.$refs[formName].validate((valid) => {
              if (valid) {
                     Service.post('login',this.Form, resp=> {
-                        console.log(resp.data)
                         if (resp.data.success) {
-                          this.$message.success('欢迎你：' + resp.data.user.stuNo)
+                          this.$message.success('欢迎你：' + resp.data.user.userName + '(' + resp.data.user.stuNo + ')')
                           this.loginOn(resp.data)
                         }else{
                             this.$message.error(resp.data.message)
                             this.resetYzSlider()
                         }
                     }, resp=> {
-                        console.log('请求失败：' + resp.status + ',' + resp.statusText)
+                        this.$message.error('服务器无响应')
+                        this.resetYzSlider()
                     })
               } else {
                 this.resetYzSlider()
-                console.log('error submit!!');
                 return false;
               }
         });
@@ -88,8 +88,8 @@ export default {
     loginOn(data) {
       let that = this
       that.loginInterval = setInterval(function () {
-        sessionStorage.setItem("user", JSON.stringify(data.user))
-        console.log(sessionStorage)
+        var saveStr = Store.save("user", data.user)
+        console.log(saveStr)
         that.$router.push("/")
         clearInterval(that.loginInterval)
       }, 1000)
