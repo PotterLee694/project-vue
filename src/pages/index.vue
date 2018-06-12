@@ -1,15 +1,16 @@
 <template>
-  <div>
+  <div id="outline">
     <el-container>
-      <el-header>
-        <span style="font-size: xx-large;text-align: center;display: block;">实验报告在线提交及互评系统</span>
-      </el-header>
       <el-container>
           <el-aside>
-            <app-frame ref="appFrame"/>
+            <div class="padding20">
+              <app-frame ref="appFrame"/>
+            </div>
           </el-aside>
           <el-main>
-            <router-view/>
+            <!--<keep-alive>-->
+              <router-view/>
+            <!--</keep-alive>-->
           </el-main>
       </el-container>
     </el-container>
@@ -43,9 +44,16 @@
     }
 </script>
 
-<style scoped>
-  div,span{
-    border-width: thin;
+<style>
+  .padding20 {
+    padding: 20px;
   }
 
+  /*#outline {*/
+    /*background-color: #f4f5f7;*/
+  /*}*/
+  html,body{
+    background: #f4f5f7;
+    height: 100%;
+  }
 </style>

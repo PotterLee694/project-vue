@@ -7,7 +7,7 @@
         </div>
             <el-form :model="Form" :rules="rules" ref="Form" label-width="100px">
                 <el-form-item label="学号" prop="stuNo">
-                    <el-input v-model="Form.stuNo" placeholder="请输入学号" ></el-input>
+                  <el-input v-model="Form.stuNo" placeholder="请输入学号" ></el-input>
                 </el-form-item>
                 <el-form-item label="密码" prop="password">
                     <el-input
@@ -100,7 +100,22 @@ export default {
 
 <style scoped>
   #card-title{
+  }
+  .clearfix {
+    display: inline-block;
+    width: 100%;
+    height: 20%;
+  }
+  .box-card {
     text-align: center;
-    display: block;
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+  }
+  .loginForm {
+    display: inline-block;
+    height: 284px;
+    width: 500px;
+    text-align: center;
   }
 </style>
