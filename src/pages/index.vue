@@ -8,9 +8,9 @@
             </div>
           </el-aside>
           <el-main>
-            <!--<keep-alive>-->
+            <keep-alive>
               <router-view/>
-            <!--</keep-alive>-->
+            </keep-alive>
           </el-main>
       </el-container>
     </el-container>

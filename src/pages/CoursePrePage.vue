@@ -4,9 +4,9 @@
         <el-button size="mini" icon="el-icon-back" @click="back"></el-button>
       </el-row>
       <el-row>
-      <p style="text-align: center;font-size: xx-large">大学物理实验</p>
+      <p style="text-align: center;font-size: xx-large">{{course.title}}</p>
       </el-row>
-      <el-row>
+      <el-row v-show="course.preVideo !== ''">
         <div style="display: inline-block;text-align: center;width: 100%">
           <!--限制播放器大小-->
           <div style="height: 400px;width: 500px;display: inline-block">
@@ -20,19 +20,66 @@
           </div>
         </div>
       </el-row>
+      <el-row>
+        <pdf :src="course.prePdf"></pdf>
+      </el-row>
     </div>
 </template>
 
 <script>
+  import Service from '@/util/service'
+  import pdf from 'vue-pdf'
     export default {
         name: "CoursePrePage",
+      components: {
+        pdf,
+      },
+      computed: {
+        courseId() {
+          return this.$route.params.courseId
+        },
+      },
+      watch: {
+        courseId() {
+          this.getCourseInfo()
+        },
+        course() {
+          this.playerOptions.sources = [{type : "", src: this.course.preVideo}]
+        },
+      },
+      created() {
+        this.init()
+      },
       methods: {
+        init() {
+          console.log(this.courseId)
+          this.getCourseInfo()
+        },
           back() {
             this.$router.back()
-          }
+          },
+        getCourseInfo(){
+          let that = this
+          Service.post('getCourse', {id: this.courseId}, resp=>{
+            if (resp.data.success) {
+              that.course = resp.data.course
+              that.course.courseTime = Moment(that.course.courseTime).format('LLLL')
+            }
+          })
+        },
       },
       data() {
           return {
+            course: {
+              id: 0,
+              title: '',
+              teachers: '',
+              description: '',
+              courseTime: '',
+              infoPdf: '',
+              prePdf: '',
+              preVideo: '',
+            },
             playerOptions : {
               playbackRates: [0.7, 1.0, 1.5, 2.0], //播放速度
               autoplay: false, //如果true,浏览器准备好时开始回放。
@@ -44,10 +91,9 @@
               fluid: true, // 当true时，Video.js player将拥有流体大小。换句话说，它将按比例缩放以适应其容器。
               sources: [{
                 type: "",
-                src: "@/../static/vedio/毛阿敏 - 相思.mp4" //url地址
+                src: "" //url地址
               }],
-              poster: "@/../static/images/fm.jpg", //你的封面地址
-              // width: document.documentElement.clientWidth,
+              poster: "", //你的封面地址
               notSupportedMessage: '此视频暂无法播放，请稍后再试', //允许覆盖Video.js无法播放媒体源时显示的默认信息。
               controlBar: {
                 timeDivider: true,

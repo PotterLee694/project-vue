@@ -1,12 +1,12 @@
 <template>
   <div>
     <div style="margin-top: 1px;width: 30%;">
-      <el-input placeholder="请输入搜索内容" v-model="input5" class="input-with-select">
-        <el-select v-model="select" slot="prepend" placeholder="请选择">
-          <el-option label="课程名" value="1"></el-option>
-          <el-option label="授课教师" value="2"></el-option>
+      <el-input placeholder="请输入搜索内容" v-model="searchContent" class="input-with-select" clearable>
+        <el-select v-model="searchType" slot="prepend" placeholder="请选择">
+          <el-option label="课程名" value="title"></el-option>
+          <el-option label="授课教师" value="teachers"></el-option>
         </el-select>
-        <el-button slot="append" icon="el-icon-search"></el-button>
+        <el-button slot="append" icon="el-icon-search" @click="getList"></el-button>
       </el-input>
     </div>
     <el-table :data="courseList" style="width: 100%;" height="600" @sort-change="sortFun" >
@@ -34,7 +34,8 @@
           <!--详情按钮-->
           <el-button size="mini" @click="handleInfo(scope.row)">详情</el-button>
           <!--关注按钮-->
-          <el-button size="mini" type="primary" plain @click="handleLike(scope.row)">关注</el-button>
+          <el-button size="mini" type="primary" v-show="!scope.row.liked" plain @click="handleLike(scope.row)">关注</el-button>
+          <el-button size="mini" type="warning" v-show="scope.row.liked" plain @click="handleDeLike(scope.row)">取消关注</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -46,6 +47,8 @@
 <script>
   import page from "@/components/page" //导入page组件
   import Service from "@/util/service" //导入Service组件
+  import Store from "@/util/store"
+  import bus from '@/assets/eventBus'
   import Moment from "moment" //导入Monent组件
   Moment.locale('zh-cn') //设置Monent组件地区
     export default {
@@ -60,11 +63,15 @@
           pageSize: 10,
           order: 'id',
           desc: true,
-          select: ''
+          searchType: '',
+          searchContent: '',
         }
       },
       mounted() {
-
+        let that = this
+        bus.$on('updateCourseList', function () {
+          that.getList()
+        })
       },
       watch: {
         // pageNum() {this.getList()},
@@ -81,8 +88,9 @@
         },
         getList() {
           var data = {
+            userID: Store.load('user').id,
             page: { pageNum: this.pageNum, pageSize: this.pageSize,
-              order: this.order, desc:this.desc }
+              order: this.order, desc:this.desc ,searchType: this.searchType, searchContent:this.searchContent}
           } //设置请求数据
           Service.post("listCourse", data, resp=>{ //调用Service组件的post方法
             var records = resp.data.records
@@ -108,7 +116,18 @@
           this.$router.push({name: 'courseInfo', params: {courseId: row.id}})
         },
         handleLike(row) {
-          this.$notify.info({message: row.id})
+          let that = this
+          Service.post('likeCourse', {userId: Store.load('user').id, courseId: row.id}, resp=>{
+            bus.$emit('updateCourseList')
+            that.$message({type: 'success', message: '关注成功，请到已关注课程查看'})
+          })
+        },
+        handleDeLike(row) {
+          let that = this
+          Service.post('deLikeCourse', {userId: Store.load('user').id, courseId: row.id}, resp=>{
+            bus.$emit('updateCourseList')
+            that.$message({type: 'success', message: '已取消关注'})
+          })
 
         },
 
