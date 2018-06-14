@@ -1,7 +1,8 @@
 <template>
   <div>
     <el-button icon="el-icon-plus" type="primary" @click="addTemplateHandle">创建模板</el-button>
-    <template-table/>
+    <div class="spaceLine"></div>
+    <template-table ref="templateTable"/>
     <template-editor dialogTitle="创建实验模板" ref="dialog"/>
   </div>
 </template>
@@ -17,6 +18,7 @@
       },
       methods: {
         addTemplateHandle() {
+          this.$refs.dialog.init()
           this.$refs.dialog.open()
         },
       },

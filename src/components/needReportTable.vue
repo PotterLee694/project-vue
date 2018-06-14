@@ -29,27 +29,29 @@
       </el-table-column>
     </el-table>
     <page ref="page" @turnPage="handleTurnPage"/>
+    <ReportEditor ref="reportEditor"/>
   </div>
 
 </template>
 
 <script>
   import page from "@/components/page"
+  import ReportEditor from "@/components/ReportEditor"
   import Service from "@/util/service"
+  import Store from "@/util/store"
+  import bus from "@/assets/eventBus"
+
   import Moment from "moment"
   Moment.locale('zh-cn')
   export default {
     name: "needReportTable",
     components: {
       page,
+      ReportEditor,
     },
     data() {
       return {
-        needReportList: [
-          {title: "课程1", courseTime: '2018-05-21 21:45:40.0'},
-          {title: "课程2", courseTime: '2018-05-21 22:45:40.0'},
-          {title: "课程8", courseTime: '2018-05-21 23:45:40.0'},
-        ],
+        needReportList: [],
         pageNum: 1,
         pageSize: 10,
         order: 'id',
@@ -59,6 +61,10 @@
     },
     mounted() {
 
+    },
+    created() {
+      bus.$on('updateNeedReportTable', this.getList)
+      this.getList()
     },
     watch: {
       // pageNum() {this.getList()},
@@ -75,7 +81,7 @@
       },
       getList() {
         var data = {
-          // userID: Store.load('user').id,
+          userId: Store.load('user').id,
           page: {
             pageNum: this.pageNum,
             pageSize: this.pageSize,
@@ -83,9 +89,9 @@
             desc:this.desc
           }
         }
-        Service.post("listCourse", data, resp=>{
-          var records = resp.data.records
-          // this.needReportList = records
+        Service.post("listNeedReport", data, resp=>{
+          let records = resp.data.records
+          this.needReportList = records
           this.$refs.page.setPageInfo(resp.data.page)
         })
       },
@@ -99,9 +105,11 @@
         this.pageNum = 1
         this.getList()
       },
-      handleLook(row) {
-        this.$notify.info({message: row.id})
-
+      handleEdit(row) {
+        this.$refs.reportEditor.courseId = row.id
+        this.$refs.reportEditor.templateId = row.templateId
+        this.$refs.reportEditor.fresh()
+        this.$refs.reportEditor.open()
       },
 
     }

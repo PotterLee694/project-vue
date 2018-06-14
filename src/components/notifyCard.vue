@@ -3,15 +3,27 @@
     <div v-show="teacher">
       <el-card class="box-card" >
         <div slot="header" class="clearfix">
-          <el-badge :value="newLikeList.length" :max="99" class="item">
-            <span>新关注</span>
+          <span v-show="newLikeCount > 0">新关注</span>
+          <el-badge :value="newLikeCount" :max="99" class="item" v-show="newLikeCount > 0">
           </el-badge>
+          <span v-show="newLikeCount <= 0">暂无新关注</span>
         </div>
         <EasyScrollbar :barOption={autohidemode:true,}>
           <div style="height: 300px;">
             <!--循环展示新关注内容-->
-              <div v-for="o in newLikeList" :key="o" class="text item">
-                 {{'新关注: ' + o }}
+              <div v-for="o in newLikeList" :key="o.id" class="text item">
+                <el-row>
+                  <el-col :span="20">
+                    <div style="text-align: left">
+                      <span>{{o.content}}</span>
+                    </div>
+                  </el-col>
+                  <el-col :span="4">
+                    <div style="text-align: right">
+                      <span style="color: #9F9F9F;display: inline-block">{{o.createStamp}}</span>
+                    </div>
+                  </el-col>
+                </el-row>
               </div>
           </div>
         </EasyScrollbar>
@@ -21,15 +33,27 @@
     <div v-show="teacher">
       <el-card class="box-card">
         <div slot="header" class="clearfix">
-          <el-badge :value="newReportList.length" :max="99" class="item">
-            <span>新提交</span>
+          <span v-show="newReportCount > 0">新提交</span>
+          <el-badge :value="newReportCount" :max="99" class="item" v-show="newReportCount > 0">
           </el-badge>
+          <span v-show="newReportCount <= 0">暂无新提交</span>
         </div>
         <EasyScrollbar>
             <div style="height: 300px;">
-            <div v-for="o in newReportList" :key="o" class="text item">
+            <div v-for="o in newReportList" :key="o.id" class="text item">
               <!--循环展示新报告内容-->
-              {{'新报告: ' + o }}
+              <el-row>
+                <el-col :span="20">
+                  <div style="text-align: left">
+                    <span>{{o.content}}</span>
+                  </div>
+                </el-col>
+                <el-col :span="4">
+                  <div style="text-align: right">
+                    <span style="color: #9F9F9F;display: inline-block">{{o.createStamp}}</span>
+                  </div>
+                </el-col>
+              </el-row>
             </div>
         </div>
         </EasyScrollbar>
@@ -39,15 +63,27 @@
     <div v-show="!teacher">
         <el-card class="box-card">
           <div slot="header" class="clearfix">
-            <el-badge :value="needReportList.length" :max="99" class="item">
-              <span>待提交</span>
+            <span v-show="needReportCount > 0">待提交报告</span>
+            <el-badge :value="needReportCount" :max="99" class="item" v-show="needReportCount > 0">
             </el-badge>
+            <span v-show="needReportCount <= 0">暂无待提交报告</span>
           </div>
           <EasyScrollbar :barOption={autohidemode:true,}>
             <div style="height: 300px;">
-              <div v-for="o in needReportList" :key="o" class="text item">
+              <div v-for="o in needReportList" :key="o.id" class="text item">
                 <!--循环展示新的待提交通知内容-->
-                {{'待提交: ' + o }}
+                <el-row>
+                  <el-col :span="20">
+                    <div style="text-align: left">
+                      <span>{{o.content}}</span>
+                    </div>
+                  </el-col>
+                  <el-col :span="4">
+                    <div style="text-align: right">
+                      <span style="color: #9F9F9F;display: inline-block">{{o.createStamp}}</span>
+                    </div>
+                  </el-col>
+                </el-row>
               </div>
             </div>
           </EasyScrollbar>
@@ -57,15 +93,27 @@
     <div v-show="!teacher">
         <el-card class="box-card">
           <div slot="header" class="clearfix">
-            <el-badge :value="newCommentList.length" :max="99" class="item">
-              <span>新评论</span>
+            <span v-show="newCommentCount > 0">新评论</span>
+            <el-badge :value="newCommentCount" :max="99" class="item" v-show="newCommentCount > 0">
             </el-badge>
+            <span v-show="newCommentCount <= 0">暂无新评论</span>
           </div>
           <EasyScrollbar>
             <div style="height: 300px;">
-              <div v-for="o in newCommentList" :key="o" class="text item">
+              <div v-for="o in newCommentList" :key="o.id" class="text item">
                 <!--循环展示新评论通知内容-->
-                {{'新评论: ' + o }}
+                <el-row>
+                  <el-col :span="20">
+                    <div style="text-align: left">
+                      <span>{{o.content}}</span>
+                    </div>
+                  </el-col>
+                  <el-col :span="4">
+                    <div style="text-align: right">
+                      <span style="color: #9F9F9F;display: inline-block">{{o.createStamp}}</span>
+                    </div>
+                  </el-col>
+                </el-row>
               </div>
             </div>
           </EasyScrollbar>
@@ -78,6 +126,10 @@
 <script>
   // 引入css
 
+  import Service from "@/util/service"
+  import Store from "@/util/store"
+  import Moment from "moment"
+  Moment.locale("zh-cn")
     export default {
       components: {
       },
@@ -85,6 +137,9 @@
         teacher : false,
       },
       name: "tabs",
+      created() {
+        this.getList()
+      },
       data() {
         return {
           opt:{
@@ -98,63 +153,93 @@
               autohidemode:true,     //自动隐藏模式
               horizrailenabled:false,//是否显示水平滚动条
           },
-
-            newLikeList: [
-                "学生1关注了实验课程《大气压实验一》",
-                "学生2关注了实验课程《大气压实验一》",
-                "学生3关注了实验课程《大气压实验一》",
-              "学生3关注了实验课程《大气压实验一》",
-              "学生3关注了实验课程《大气压实验一》",
-              "学生3关注了实验课程《大气压实验一》",
-              "学生3关注了实验课程《大气压实验一》",
-              "学生3关注了实验课程《大气压实验一》",
-              "学生3关注了实验课程《大气压实验一》",
-              "学生3关注了实验课程《大气压实验一》",
-              "学生3关注了实验课程《大气压实验一》",
-              "学生3关注了实验课程《大气压实验一》",
-              "学生3关注了实验课程《大气压实验一》",
-              "学生3关注了实验课程《大气压实验一》",
-              "学生3关注了实验课程《大气压实验一》",
-              "学生3关注了实验课程《大气压实验一》",
-              "学生3关注了实验课程《大气压实验一》",
-              "学生3关注了实验课程《大气压实验一》",
-
-
-              ],
-          newReportList: [
-            "学生1提交了实验课程《大气压实验一》的实验报告",
-            "学生2提交了实验课程《大气压实验一》的实验报告",
-            "学生3提交了实验课程《大气压实验一》的实验报告",
-            "学生4提交了实验课程《大气压实验一》的实验报告",
-            "学生5提交了实验课程《大气压实验一》的实验报告",
-            "学生5提交了实验课程《大气压实验一》的实验报告",
-            "学生5提交了实验课程《大气压实验一》的实验报告",
-            "学生5提交了实验课程《大气压实验一》的实验报告",
-            "学生5提交了实验课程《大气压实验一》的实验报告",
-            "学生5提交了实验课程《大气压实验一》的实验报告",
-            "学生5提交了实验课程《大气压实验一》的实验报告",
-            "学生5提交了实验课程《大气压实验一》的实验报告",
-            "学生5提交了实验课程《大气压实验一》的实验报告",
-            "学生5提交了实验课程《大气压实验一》的实验报告",
-            "学生6提交了实验课程《大气压实验一》的实验报告",
-          ],
-          needReportList: [
-            "实验课程《大气压实验一》已结束，请注意提交实验报告",
-            "实验课程《大气压实验二》已结束，请注意提交实验报告",
-            "实验课程《电路实验》已结束，请注意提交实验报告",
-          ],
-          newCommentList: [
-            "学生2评论了您在《大气压实验一》提交的实验报告：评论内容",
-            "学生3评论了您在《大气压实验一》提交的实验报告：评论内容",
-            "学生4评论了您在《大气压实验一》提交的实验报告：评论内容",
-            "学生2评论了您在《电路实验》提交的实验报告：评论内容",
-          ],
+          newLikeCount: 0,
+          newReportCount: 0,
+          needReportCount: 0,
+          newCommentCount: 0,
+          newLikeList: [],
+          newReportList: [],
+          needReportList: [],
+          newCommentList: [],
         };
       },
       methods: {
         handleClick(tab, event) {
           console.log(tab, event);
-        }
+        },
+        getList() {
+          let that = this
+          Service.post('listNotice', {userId: Store.load('user').id}, resp=>{
+            let records = resp.data.records
+            that.newLikeCount = 0
+            that.newReportCount = 0
+            that.needReportCount = 0
+            that.newCommentCount = 0
+            records.forEach(function (item, index) {
+              item.createStamp = Moment(item.createStamp).format('YYYY年M月d日 hh:mm:ss')
+              if (item.type === 'like') {
+                that.newLikeList.push(item)
+              }
+              if (item.type === 'newReport') {
+                that.newReportList.push(item)
+              }
+              if (item.type === 'needReport') {
+                that.needReportList.push(item)
+              }
+              if (item.type === 'comment') {
+                that.newCommentList.push(item)
+              }
+            })
+            Service.post('checkNotice', {userId: Store.load('user').id})
+            that.notify()
+          })
+
+        },
+        notify() {
+          let that = this
+          that.newLikeList.forEach(function(item, index) {
+            that.doNotify(item, '新关注')
+          });
+          that.newReportList.forEach(function(item, index) {
+            that.doNotify(item, '新提交')
+          });
+          that.needReportList.forEach(function(item, index) {
+            that.doNotify(item, '待提交报告')
+          });
+          that.newCommentList.forEach(function(item, index) {
+            that.doNotify(item, '新评论')
+          });
+
+
+        },
+        doNotify(i, ti) {
+          let that = this
+          let item = i
+          let title = ti
+          let t = setTimeout(function (){
+              if (item.checkTime === null) {
+                if (title === '新关注') {
+                  that.newLikeCount += 1
+                }
+                if (title === '新提交') {
+                  that.newReportCount += 1
+                }
+                if (title === '待提交报告') {
+                  that.needReportCount += 1
+                }
+                if (title === '新评论') {
+                  that.newCommentCount += 1
+                }
+                  that.$notify({
+                    type: "info",
+                    title: title,
+                    message: item.content,
+                  });
+              }
+              clearTimeout(t)
+          }, 200);
+
+        },
       }
     }
 </script>

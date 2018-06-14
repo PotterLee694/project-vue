@@ -35,6 +35,7 @@
           </el-form-item>
           <el-form-item label="详情内容">
             <el-upload
+              ref="infoUploader"
               class="upload-demo"
               drag
               action="http://localhost:8081/upload"
@@ -47,6 +48,7 @@
           </el-form-item>
           <el-form-item label="预习内容">
             <el-upload
+              ref="preInfoUploader"
               class="upload-demo"
               drag
               action="http://localhost:8081/upload"
@@ -59,6 +61,7 @@
           </el-form-item>
           <el-form-item label="预习视频">
             <el-upload
+              ref="preVideoUploader"
               class="upload-demo"
               drag
               action="http://localhost:8081/upload"
@@ -130,6 +133,19 @@
         this.fresh()
       },
       methods: {
+        init() {
+          this.form.id = 0
+          this.form.title = ''
+          this.form.courseTime = ''
+          this.form.description = ''
+          this.form.teachers = Store.load("user").userName
+          this.form.infoPdf = ''
+          this.form.prePdf = ''
+          this.form.preVideo = ''
+          this.$refs.infoUploader.clearFiles()
+          this.$refs.preInfoUploader.clearFiles()
+          this.$refs.preVideoUploader.clearFiles()
+        },
         open() {
           this.dialogFormVisible = true
         },

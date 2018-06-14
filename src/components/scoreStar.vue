@@ -5,7 +5,7 @@
           <div class="block">
               <span class="demonstration">平均评分</span>
               <el-rate
-                v-model="value"
+                v-model="report.avgScore"
                 disabled
                 show-score
                 text-color="#ff9900"
@@ -18,25 +18,70 @@
               <span class="demonstration">你的评分</span>
               <el-rate
                 v-model="newValue"
+                @change="onChange"
                 :colors="['#99A9BF', '#F7BA2A', '#FF9900']">
               </el-rate>
           </div>
         </el-col>
       </el-row>
-
-
     </div>
 </template>
 
 <script>
+  import Service from "@/util/service"
+  import Store from "@/util/store"
+  import bus from "@/assets/eventBus"
+
     export default {
         name: "scoreStar",
+      props: {
+        report: {},
+      },
       data() {
         return {
-          value: 3.7,
           newValue: 0,
         }
-      }
+      },
+      mounted() {
+        this.fresh()
+      },
+      watch: {
+
+        report() {
+          this.fresh()
+        },
+      },
+      methods: {
+        fresh() {
+          let that = this
+          Service.post('getScore', {userId: Store.load('user').id, reportId: this.report.id}, resp => {
+            if (resp.data.success) {
+              if (resp.data.score === null) {
+                that.newValue = 0;
+              } else {
+                that.newValue = resp.data.score;
+              }
+            }
+          })
+        },
+        onChange(value) {
+          let that = this
+          if (value > 0) {
+            Service.post('updateScore', {
+              userId: Store.load('user').id,
+              reportId: this.report.id,
+              score: value
+            }, resp => {
+              if (resp.data.success) {
+                that.$message({type: 'success', message: '评分成功'})
+                bus.$emit('updateReport')
+              }
+            })
+          }
+        },
+
+      },
+
     }
 </script>
 

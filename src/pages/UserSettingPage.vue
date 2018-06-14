@@ -22,6 +22,7 @@
           <el-button type="primary" @click="submit">修改</el-button>
         </el-form>
       </el-card>
+      <TemplatePrinter template='label!${"des": {"text": "实验结果："}}*|*blank!${"des": {"maxlength": 3}, "value" : "vv"}'/>
     </div>
 </template>
 
@@ -29,8 +30,12 @@
   import Store from '@/util/store'
   import Service from '@/util/service'
   import bus from '@/assets/eventBus'
+  import TemplatePrinter from "@/components/templatePrinter"
     export default {
         name: "UserSettingPage",
+      components: {
+        TemplatePrinter,
+      },
       mounted() {
         this.form.id = Store.load('user').id
         this.form.stuNo = Store.load('user').stuNo

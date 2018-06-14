@@ -1,6 +1,7 @@
 <template>
   <div>
     <el-button icon="el-icon-plus" type="primary" @click="addCourseHandle">创建课程</el-button>
+    <div class="spaceLine"></div>
     <manage-course-table ref="courseTable"/>
     <course-editor dialogTitle="创建实验课程" ref="dialog"/>
   </div>
@@ -18,6 +19,7 @@
       methods: {
         addCourseHandle() {
           this.$refs.dialog.open()
+          this.$refs.dialog.init()
         },
       },
     }

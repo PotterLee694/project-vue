@@ -17,26 +17,7 @@
     >
       <el-table-column type="expand">
         <template slot-scope="props">
-          <el-form label-position="left" inline class="demo-table-expand">
-            <el-form-item label="课程名称：">
-              <span>{{ props.row.title}}</span>
-            </el-form-item>
-            <el-form-item>
-              <el-form-item label="课程编号：">
-                <span>{{ props.row.id }}</span>
-              </el-form-item>
-              <el-form-item label="授课教师：">
-                <span>{{ props.row.teachers}}</span>
-              </el-form-item>
-              <el-form-item label="课程时间：">
-                <i class="el-icon-time"></i>
-                <span>{{ props.row.courseTime}}</span>
-              </el-form-item>
-            </el-form-item>
-            <el-form-item label="课程描述：">
-              <p class="p2">{{ props.row.description}}</p>
-            </el-form-item>
-          </el-form>
+          <p class="p2">{{ props.row.description}}</p>
         </template>
       </el-table-column>
       <!--<el-table-column-->
@@ -90,7 +71,7 @@
     </el-table>
     <page ref="page" @turnPage="handleTurnPage"/>
     <course-mapper dialogTitle="绑定模板" ref="courseMapper"/>
-    <course-editor dialogTitle="修改实验课程" course="x" ref="courseEditor"/>
+    <course-editor dialogTitle="修改实验课程" ref="courseEditor"/>
   </div>
 
 </template>
@@ -113,8 +94,8 @@
       data() {
         return {
           user: {
-            id: 2,
-            username: '教师测试员',
+            id: 0,
+            userName: '',
           },
           courseList: [],
           pageNum: 1,
@@ -125,7 +106,8 @@
         }
       },
       mounted() {
-
+        this.user.id = Store.load('user').id
+        this.user.userName = Store.load('user').userName
       },
       watch: {
         // pageNum() {this.getList()},
@@ -176,10 +158,11 @@
           return row.courseOver === value;
         },
         handleMap(row) {
+
+          this.$refs.courseMapper.form.courseId = row.id
           this.$refs.courseMapper.open()
         },
         handleUpdate(row) {
-          this.$notify.info({message: row.id})
           this.$refs.courseEditor.form.id = row.id
           console.log("id====" + this.$refs.courseEditor.form.id)
           this.$refs.courseEditor.fresh()

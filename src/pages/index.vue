@@ -56,4 +56,13 @@
     background: #f4f5f7;
     height: 100%;
   }
+
+  .base-blank {
+    display: inline-block;
+    width: 300px;
+
+  }
+  .base-label {
+    display: inline-block;
+  }
 </style>

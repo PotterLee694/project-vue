@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
+import TemplatePrinter from '@/components/templatePrinter'
+
 import Login from '@/pages/login'
 import Index from '@/pages/index'
 import UserSettingPage from '@/pages/UserSettingPage'
@@ -23,6 +25,11 @@ Vue.use(Router);
 
 export default new Router({
   routes: [
+    {
+      path: '/templatePrinter',
+      name: 'templatePrinter',
+      component: TemplatePrinter
+    },
     {
       path: '/login',
       name: 'login',

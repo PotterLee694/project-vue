@@ -59,7 +59,11 @@ export default {
              if (valid) {
                     Service.post('login',this.Form, resp=> {
                         if (resp.data.success) {
-                          this.$message.success('欢迎你：' + resp.data.user.userName + '(' + resp.data.user.stuNo + ')')
+                          let userName = resp.data.user.userName
+                          if (userName === null) {
+                            userName = ""
+                          }
+                          this.$message.success('欢迎你：' + userName + '(' + resp.data.user.stuNo + ')');
                           this.loginOn(resp.data)
                         }else{
                             this.$message.error(resp.data.message)

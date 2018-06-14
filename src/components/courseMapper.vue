@@ -4,7 +4,7 @@
         <el-form ref="form" :model="form" label-width="130px">
           <el-form-item label="选择模板">
             <!--模板选择下拉框-->
-            <el-select v-model="form.mapTemplate" clearable placeholder="请选择">
+            <el-select v-model="form.templateId" clearable placeholder="请选择">
               <el-option
                 v-for="item in options"
                 :key="item.value"
@@ -16,7 +16,7 @@
         </el-form>
         <div slot="footer" class="dialog-footer">
           <!--确认和取消按钮-->
-          <el-button type="primary" @click="onsubmit">确认</el-button>
+          <el-button type="primary" @click="onSubmit">确认</el-button>
           <el-button @click="close">取 消</el-button>
         </div>
       </el-dialog>
@@ -25,6 +25,8 @@
 
 <script>
   import Store from "@/util/store"
+  import Service from "@/util/service"
+  import bus from "@/assets/eventBus"
     export default {
       name: "courseMapper",
       props: {
@@ -34,32 +36,42 @@
         return {
           dialogFormVisible: false,
           form: {
-            mapTemplate: '',
+            courseId: 0,
+            templateId: 0,
           },
-          options: [{
-            value: '模板1',
-            label: '模板1'
-          }, {
-            value: '模板2',
-            label: '模板2'
-          }, {
-            value: '模板3',
-            label: '模板3'
-          }, {
-            value: '模板4',
-            label: '模板4'
-          }, {
-            value: '模板5',
-            label: '模板5'
-          }],
+          options: [{value: 0, label: '无'}],
         }
       },
       methods: {
         open() { //打开对话框
+          let that = this
+          Service.post('listTemplate', {userId: Store.load('user').id}, resp=>{
+            let records = resp.data.records
+            that.options = [{value: 0, label: '无'}]
+            records.forEach(function (item, index) {
+              that.options.push({value: item.id, label: item.title})
+            })
+          })
+          Service.post('getCourse', {id: that.form.courseId}, resp=>{
+            if (resp.data.success) {
+              that.form.templateId = resp.data.course.templateId
+            }
+          })
           this.dialogFormVisible = true
         },
         close() { //关闭对话框
           this.dialogFormVisible = false
+        },
+        onSubmit() {
+          let that = this
+          Service.post('mapTemplate', this.form, resp=>{
+            if (resp.data.success) {
+              that.$message({type: "success", message: '绑定成功'})
+              bus.$emit('updateTemplateTable')
+              that.close()
+            }
+          })
+
         },
 
       },

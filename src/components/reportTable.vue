@@ -1,16 +1,16 @@
 <template>
   <div>
-    <div style="margin-top: 1px;width: 30%;">
-      <el-input placeholder="请输入搜索内容" v-model="input5" class="input-with-select">
-        <!--搜过下拉框-->
-        <el-select v-model="select" slot="prepend" placeholder="请选择">
-          <!--根据课程名或学生搜索-->
-          <el-option label="课程名" value="1"></el-option>
-          <el-option label="学生" value="2"></el-option>
-        </el-select>
-        <el-button slot="append" icon="el-icon-search" @click="handleSearch"></el-button>
-      </el-input>
-    </div>
+    <!--<div style="margin-top: 1px;width: 30%;">-->
+      <!--<el-input placeholder="请输入搜索内容" v-model="input5" class="input-with-select">-->
+        <!--&lt;!&ndash;搜过下拉框&ndash;&gt;-->
+        <!--<el-select v-model="select" slot="prepend" placeholder="请选择">-->
+          <!--&lt;!&ndash;根据课程名或学生搜索&ndash;&gt;-->
+          <!--<el-option label="课程名" value="1"></el-option>-->
+          <!--<el-option label="学生" value="2"></el-option>-->
+        <!--</el-select>-->
+        <!--<el-button slot="append" icon="el-icon-search" @click="handleSearch"></el-button>-->
+      <!--</el-input>-->
+    <!--</div>-->
     <el-table
       :data="reportList"
       style="width: 100%;"
@@ -29,7 +29,7 @@
       <el-table-column
         label="提交时间"
         sortable="custom"
-        prop="actionStamp"
+        prop="createStamp"
         :formatter="timeFormatter"
       >
       </el-table-column>
@@ -51,6 +51,7 @@
 <script>
   import page from "@/components/page"
   import Service from "@/util/service"
+  import bus from "@/assets/eventBus"
   import Moment from "moment"
   Moment.locale('zh-cn')
   export default {
@@ -60,16 +61,7 @@
     },
     data() {
       return {
-        reportList: [
-          {title: "课程1", stuName: '学生1', actionStamp: '2018-05-21 21:45:40.0'},
-          {title: "课程2", stuName: '学生2', actionStamp: '2018-05-21 21:45:40.0'},
-          {title: "课程3", stuName: '学生3', actionStamp: '2018-05-21 21:45:40.0'},
-          {title: "课程4", stuName: '学生4', actionStamp: '2018-05-21 21:45:40.0'},
-          {title: "课程5", stuName: '学生5', actionStamp: '2018-05-21 21:45:40.0'},
-          {title: "课程6", stuName: '学生6', actionStamp: '2018-05-21 21:45:40.0'},
-          {title: "课程7", stuName: '学生7', actionStamp: '2018-05-21 21:45:40.0'},
-          {title: "课程8", stuName: '学生8', actionStamp: '2018-05-21 21:45:40.0'},
-        ],
+        reportList: [],
         pageNum: 1,
         pageSize: 10,
         order: 'id',
@@ -78,7 +70,8 @@
       }
     },
     mounted() {
-
+      bus.$on('updateReportTable', this.getList)
+      this.getList()
     },
     watch: {
       // pageNum() {this.getList()},
@@ -110,8 +103,8 @@
         })
       },
       timeFormatter(row) {
-        row.actionStamp = Moment(row.actionStamp,'LLLL').format('LLLL')
-        return row.actionStamp
+        row.createStamp = Moment(row.createStamp,'LLLL').format('LLLL')
+        return row.createStamp
       },
       sortFun(e) { //列表的排序功能实现
         this.order = e.prop
@@ -120,7 +113,7 @@
         this.getList() //重新获取列表
       },
       handleLook(row) { //响应查看报告按钮
-        this.$router.push('report') //跳转到实验报告界面
+        this.$router.push({name: 'report', params: {reportId: row.id}}) //跳转到实验报告界面
       },
 
     }
